@@ -1,121 +1,114 @@
 import React, { useState, useEffect } from "react";
+import { storeDataJSON, getDataJSON, removeData } from "../functions/AsyncStorageFunctions";
 import {
-  ScrollView,
   View,
   StyleSheet,
   FlatList,
-  ActivityIndicator,
 } from "react-native";
 import {
   Card,
   Button,
-  Text,
-  Avatar,
   Input,
   Header,
 } from "react-native-elements";
 import PostCard from "./../components/PostCard";
-import { AntDesign, Entypo } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import { AuthContext } from "../providers/AuthProvider";
-import { getPosts } from "./../requests/Posts";
-import { getUsers } from "./../requests/Users";
+import moment from "moment";
+import ScreenHeader from "../components/ScreenHeader";
+
 
 const HomeScreen = (props) => {
-  const [posts, setPosts] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [post, setpost] = useState("");
+  const [postList, setPostList] = useState([]);
 
-  const loadPosts = async () => {
-    setLoading(true);
-    const response = await getPosts();
-    if (response.ok) {
-      setPosts(response.data);
-    }
-  };
-
-  const loadUsers = async () => {
-    const response = await getUsers();
-    if (response.ok) {
-      setUsers(response.data);
-    }
-    setLoading(false);
-  };
-  const getName = (id) => {
-    let Name = "";
-    users.forEach((element) => {
-      if (element.id == id) Name = element.name;
+  const getData = async () => {
+    await getDataJSON("key").then((data) => {
+      if (data == null) {
+        setPostList([]);
+      } else setPostList(data);
     });
-    return Name;
+  };
+
+  /*const getData = async () => {
+    setPostList(await getDataJSON('key'));
+  };*/
+
+  const init = async () => {
+    await removeData("key");
   };
 
   useEffect(() => {
-    loadPosts();
-    loadUsers();
+    /*const getData = async () => {
+      setPostList(await getDataJSON('key'));
+    }*/
+    getData();
   }, []);
 
-  if (!loading) {
-    return (
-      <AuthContext.Consumer>
-        {(auth) => (
-          <View style={styles.viewStyle}>
-            <Header
-              leftComponent={{
-                icon: "menu",
-                color: "#fff",
-                onPress: function () {
-                  props.navigation.toggleDrawer();
-                },
-              }}
-              centerComponent={{ text: "The Office", style: { color: "#fff" } }}
-              rightComponent={{
-                icon: "lock-outline",
-                color: "#fff",
-                onPress: function () {
-                  auth.setIsLoggedIn(false);
-                  auth.setCurrentUser({});
-                },
+  return (
+    <AuthContext.Consumer>
+      {(auth) => (
+        <View style={styles.viewStyle}>
+        <ScreenHeader props ={props} ></ScreenHeader>
+          <Card containerStyle={{ backgroundColor: 'white' }}>
+            <Input
+              placeholder="What's On Your Mind?"
+              leftIcon={<Entypo name="pencil" size={24} color="#152a38" />}
+              onChangeText={function (currentInput) {
+                setpost(currentInput);
               }}
             />
-            <Card>
-              <Input
-                placeholder="What's On Your Mind?"
-                leftIcon={<Entypo name="pencil" size={24} color="black" />}
-              />
-              <Button title="Post" type="outline" onPress={function () {}} />
-            </Card>
+            <Button buttonStyle={{ borderColor: '#29435c' }}
+              title="Post"
+              titleStyle={{ color: '#29435c' }}
+              type="outline"
+              onPress={
+                async () => {
+                let arr = [
+                  ...postList,
+                  {
+                    name: auth.CurrentUser.name,
+                    email: auth.CurrentUser.email,
+                    date: moment().utcOffset('+06:00').format("DD MMM, YYYY hh:mm:ss a"),
+                    post: post,
+                    key: post,
+                  },
+                ];
 
-            <FlatList
-              data={posts}
+                await storeDataJSON("key", arr).then(() => {
+                  setPostList(arr);
+                  alert("Posted!");
+                });
+              }} />
+
+          </Card>
+          <FlatList
+              data={postList}
               renderItem={function ({ item }) {
                 return (
                   <PostCard
-                    author={getName(item.userId)}
-                    title={item.title}
-                    body={item.body}
+                    author={item.name}
+                    time={item.date}
+                    body={item.post}
+                    nav = {props}
                   />
                 );
               }}
             />
-          </View>
-        )}
-      </AuthContext.Consumer>
-    );
-  } else {
-    return (
-      <View style={{ flex: 1, justifyContent: "center" }}>
-        <ActivityIndicator size="large" color="red" animating={true} />
-      </View>
-    );
-  }
+        </View>
+      )}
+    </AuthContext.Consumer>
+      );
 };
 
 const styles = StyleSheet.create({
-  textStyle: {
-    fontSize: 30,
+        textStyle: {
+        fontSize: 30,
     color: "blue",
   },
   viewStyle: {
-    flex: 1,
+        flex: 1,
+    backgroundColor: '#D9D2D2'
   },
 });
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { Input, Button, Card } from "react-native-elements";
-import { FontAwesome, Feather, AntDesign } from "@expo/vector-icons";
+import { Entypo, Feather, AntDesign } from "@expo/vector-icons";
 import { AuthContext } from "../providers/AuthProvider";
 import { getDataJSON } from "../functions/AsyncStorageFunctions";
 
@@ -13,10 +13,10 @@ const SignInScreen = (props) => {
       {(auth) => (
         <View style={styles.viewStyle}>
           <Card>
-            <Card.Title>Welcome to AuthApp!</Card.Title>
+            <Card.Title>Welcome to The Blog App!</Card.Title>
             <Card.Divider />
             <Input
-              leftIcon={<FontAwesome name="envelope" size={24} color="black" />}
+              leftIcon={<Entypo name="email" size={24} color="#B30205" />}
               placeholder="E-mail Address"
               onChangeText={function (currentInput) {
                 setEmail(currentInput);
@@ -25,7 +25,7 @@ const SignInScreen = (props) => {
 
             <Input
               placeholder="Password"
-              leftIcon={<Feather name="key" size={24} color="black" />}
+              leftIcon={<Feather name="key" size={24} color="#B30205" />}
               secureTextEntry={true}
               onChangeText={function (currentInput) {
                 setPassword(currentInput);
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   viewStyle: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#4bacb8",
+    backgroundColor: "#D9D2D2",
   },
 });
 export default SignInScreen;

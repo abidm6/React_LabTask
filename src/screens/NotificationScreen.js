@@ -1,30 +1,16 @@
-import React, { useState } from "react";
-import { View, StyleSheet, AsyncStorage } from "react-native";
-import { Text, Card, Button, Avatar, Header } from "react-native-elements";
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { Text, Card, Avatar, Header } from "react-native-elements";
 import { AuthContext } from "../providers/AuthProvider";
+import ScreenHeader from "../components/ScreenHeader";
 const NotificationScreen = (props) => {
-  return (
+
+  //console.log(props)
+  return ( 
     <AuthContext.Consumer>
       {(auth) => (
         <View style={styles.viewStyle}>
-          <Header
-            leftComponent={{
-              icon: "menu",
-              color: "#fff",
-              onPress: function () {
-                props.navigation.toggleDrawer();
-              },
-            }}
-            centerComponent={{ text: "The Office", style: { color: "#fff" } }}
-            rightComponent={{
-              icon: "lock-outline",
-              color: "#fff",
-              onPress: function () {
-                auth.setIsLoggedIn(false);
-                auth.setCurrentUser({});
-              },
-            }}
-          />
+          <ScreenHeader props ={props} ></ScreenHeader>
           <Card>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Avatar
@@ -38,7 +24,7 @@ const NotificationScreen = (props) => {
                 activeOpacity={1}
               />
               <Text style={{ paddingHorizontal: 10 }}>
-                Pam Beesley Liked Your Post.
+                Notifications Show Here
               </Text>
             </View>
           </Card>
@@ -49,12 +35,9 @@ const NotificationScreen = (props) => {
 };
 
 const styles = StyleSheet.create({
-  textStyle: {
-    fontSize: 30,
-    color: "blue",
-  },
   viewStyle: {
     flex: 1,
+    backgroundColor: '#D9D2D2'
   },
 });
 

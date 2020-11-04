@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet,Text } from "react-native";
 import { Input, Button, Card } from "react-native-elements";
-import { FontAwesome, Feather, AntDesign, Ionicons } from "@expo/vector-icons";
+import { Feather, AntDesign, Ionicons, Entypo, MaterialIcons} from "@expo/vector-icons";
 import { storeDataJSON } from "../functions/AsyncStorageFunctions";
 import DatePicker from 'react-native-datepicker'
 
@@ -12,28 +12,30 @@ const SignUpScreen = (props) => {
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
   const [DOB, setDOB] = useState()
+  const [HomeAddress, setHomeAddress] = useState("")
+  const [WorkAddress, setWorkAddress] = useState("");
 
   return (
     <View style={styles.viewStyle}>
       <Card>
-        <Card.Title>Welcome to AuthApp!</Card.Title>
+        <Card.Title>Welcome to The Blog App!</Card.Title>
         <Card.Divider />
         <Input
-          leftIcon={<Ionicons name="ios-person" size={24} color="black" />}
+          leftIcon={<Ionicons name="ios-person" size={24} color="#B30205" />}
           placeholder="Name"
           onChangeText={function (currentInput) {
             setName(currentInput);
           }}
         />
         <Input
-          leftIcon={<Ionicons name="ios-school" size={24} color="black" />}
+          leftIcon={<Ionicons name="ios-school" size={24} color="#B30205" />}
           placeholder="Student ID"
           onChangeText={function (currentInput) {
             setSID(currentInput);
           }}
         />
         <Input
-          leftIcon={<FontAwesome name="envelope" size={24} color="black" />}
+          leftIcon={<Entypo name="email" size={24} color="#B30205" />}
           placeholder="E-mail Address"
           onChangeText={function (currentInput) {
             setEmail(currentInput);
@@ -42,7 +44,7 @@ const SignUpScreen = (props) => {
 
         <Input
           placeholder="Password"
-          leftIcon={<Feather name="key" size={24} color="black" />}
+          leftIcon={<Feather name="key" size={24} color="#B30205" />}
           secureTextEntry={true}
           onChangeText={function (currentInput) {
             setPassword(currentInput);
@@ -55,7 +57,7 @@ const SignUpScreen = (props) => {
         mode="date"
         placeholder="Date of Birth"
         date = {DOB}
-        format="YYYY-MM-DD"
+        format="DD-MM-YYYY"
         confirmBtnText="Confirm"
         cancelBtnText="Cancel"
         customStyles={{
@@ -77,6 +79,21 @@ const SignUpScreen = (props) => {
         }
       />
 
+      <Input
+          placeholder="Home Address"
+          leftIcon={<Entypo name="address" size={24} color="#B30205" />}
+          onChangeText={function (currentInput) {
+            setHomeAddress(currentInput);
+          }}
+        />
+         <Input
+          placeholder="Work Address"
+          leftIcon={<MaterialIcons name="work" size={24} color="#B30205" />}
+          onChangeText={function (currentInput) {
+            setWorkAddress(currentInput);
+          }}
+        />
+
         <Button
           icon={<AntDesign name="user" size={24} color="white" />}
           title="  Sign Up!"
@@ -88,7 +105,10 @@ const SignUpScreen = (props) => {
               email: Email,
               password: Password,
               date: DOB,
+              homeAddress: HomeAddress,
+              workAddress: WorkAddress,
             };
+            alert("Signed Up!");
             storeDataJSON(Email, currentUser);
             props.navigation.navigate("SignIn");
           }}
@@ -110,7 +130,7 @@ const styles = StyleSheet.create({
   viewStyle: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#4bacb8",
+    backgroundColor: "#D9D2D2",
   },
 });
 export default SignUpScreen;
