@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { View, StyleSheet,Text } from "react-native";
 import { Input, Button, Card } from "react-native-elements";
 import { Feather, AntDesign, Ionicons, Entypo, MaterialIcons} from "@expo/vector-icons";
-import { storeDataJSON } from "../functions/AsyncStorageFunctions";
+import * as firebase from 'firebase';
+import 'firebase/firestore';
 import DatePicker from 'react-native-datepicker'
 
 
@@ -98,19 +99,41 @@ const SignUpScreen = (props) => {
           icon={<AntDesign name="user" size={24} color="white" />}
           title="  Sign Up!"
           type="solid"
-          onPress={function () {
-            let currentUser = {
-              name: Name,
-              sid: SID,
-              email: Email,
-              password: Password,
-              date: DOB,
-              homeAddress: HomeAddress,
-              workAddress: WorkAddress,
-            };
-            alert("Signed Up!");
-            storeDataJSON(Email, currentUser);
-            props.navigation.navigate("SignIn");
+          onPress={() => {
+            if (Name && SID && Email && Password) {
+              firebase
+                .auth()
+                .createUserWithEmailAndPassword(Email, Password)
+                .then((userCreds) => {
+                  userCreds.user.updateProfile({ displayName: Name });
+                  firebase
+                    .firestore()
+                    .collection("users")
+                    .doc(userCreds.user.uid)
+                    .set({
+                      name: Name,
+                      sid: SID,
+                      email: Email,
+                      password: Password,
+                      date: DOB,
+                      homeAddress: HomeAddress,
+                      workAddress: WorkAddress,
+                    })
+                    .then(() => {
+                      alert("Account created!  UID: " + userCreds.user.uid);
+                      console.log(userCreds.user);
+                      props.navigation.navigate("SignIn");
+                    })
+                    .catch((error) => {
+                      alert(error);
+                    });
+                })
+                .catch((error) => {
+                  alert(error);
+                });
+            } else {
+              alert("Fields can not be empty!");
+            }
           }}
         />
         <Button

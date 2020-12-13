@@ -1,6 +1,7 @@
 import React from 'react'
 import {Header} from "react-native-elements";
 import {AuthContext} from "../providers/AuthProvider";
+import * as firebase from 'firebase';
 
 
 const ScreenHeader = ({props}) => {
@@ -22,8 +23,16 @@ return(
               icon: "lock-outline",
               color: "#fff",
               onPress: function () {
-                auth.setIsLoggedIn(false);
-                auth.setCurrentUser({});
+                firebase
+                .auth()
+                .signOut()
+                .then(() => {
+                  auth.setIsLoggedIn(false);
+                  auth.setCurrentUser({});
+                })
+                .catch((error) => {
+                  alert(error);
+                });
               },
             }}
           />    )}

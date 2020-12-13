@@ -3,9 +3,12 @@ import { View } from "react-native";
 import { Card, Button, Text, Avatar } from "react-native-elements";
 import { AntDesign } from "@expo/vector-icons";
 import { storeDataJSON, getDataJSON} from "../functions/AsyncStorageFunctions";
+import { useNavigation } from "@react-navigation/native";
 
 
 const PostCard = (props) => {
+
+  const useStackNavigation = useNavigation();
 
 
   return (
@@ -46,10 +49,12 @@ const PostCard = (props) => {
         />
         <Button type="solid" title="Comments"
         onPress={function () {
-          props.nav.navigation.navigate("Post",{
+          useStackNavigation.navigate("Post",{
             author: props.author,
             date: props.time,
             post: props.body,
+            authorID: props.authorID,
+            postID: props.postID
         });}} />
       </View>
     </Card>

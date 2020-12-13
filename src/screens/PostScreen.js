@@ -18,29 +18,38 @@ import {
   import ScreenHeader from "../components/ScreenHeader";
   import CommentComponent from "../components/CommentComponent";
   import moment from "moment";
+  import * as firebase from 'firebase';
+  import 'firebase/firestore';
+import PostCard from "../components/PostCard";
 
   const PostScreen = (props) =>  {
 
       //console.log(props)
 
-      const [comment, setComment] = useState("");
+      const [commentText, setCommentText] = useState("");
       const [commentList, setCommentList] = useState([]);
-      //const [commentCount, setCommentCount] = useState(0);
-      const init = async () => {
-        await removeData(props.route.params.post);
-      };
   
-      const getComment = async () => {
-          await getDataJSON(props.route.params.post).then((data) => {
-              if (data == null) {
-                  setCommentList([]);
-              } else setCommentList(data);
-          });
-      };
+      const loadComments = async () => {
+      
+        firebase
+            .firestore()
+            .collection('posts')
+            .doc(props.route.params.postID)
+            .onSnapshot((querySnapShot) => {
+               
+                setCommentList(querySnapShot.data().comments);
+            })
+            .catch((error) => {
+                
+                alert(error);
+            })
+    }
+
       useEffect(() => {
-          getComment();
-          //init();
+          loadComments();
       }, [])
+
+
     
       return(
 
@@ -94,7 +103,7 @@ import {
                   
                   placeholderTextColor="black"
                   onChangeText={function (currentInput) {
-                    setComment(currentInput);
+                    setCommentText(currentInput);
                 }}
                   
                   inputContainerStyle={styles.inputStyle}
@@ -108,27 +117,29 @@ import {
                                 title="Comment"
                                 titleStyle={{ color: '#29435c' }}
                                 type="outline"
-                                onPress={async () => {
-                                    let arr = [
-                                        ...commentList,
-                                        {
-                                            name: auth.CurrentUser.name,
-                                            email: auth.CurrentUser.email,
-                                            date:  moment().utcOffset('+06:00').format("DD MMM, YYYY hh:mm:ss a"),
-                                            comment: comment,
-                                            key: comment,
-                                        },
-                                    ];
-
-                                
-                                    await storeDataJSON(props.route.params.post, arr).then(() => {
-                                        setCommentList(arr);
+                                onPress={function () {
+                                  firebase
+                                      .firestore()
+                                      .collection('posts')
+                                      .doc(props.route.params.postID)
+                                      .set(
+                                          {
+                                              comments: [...commentList,
+                                              {
+                                                  comment: commentText,
+                                                  commented_by: auth.CurrentUser.displayName,
+                                                  commented_at: firebase.firestore.Timestamp.now(),
+                                                  commenting_date: moment().format("DD MMM, YYYY")
+                                              }]
+                                          },
+                                          { merge: true }
+                                      )
+                                      .then((doc) => {
                                         alert("Commented!")
-                                        //setCommentCount = setCommentCount + 1
-                                    });
-
-
-                                }} />
+                                      })
+                                      .catch((error) => {
+                                          alert(error);
+                                       })}} />
               
                </Card>
 
@@ -137,8 +148,8 @@ import {
                         data={commentList}
                         renderItem={commentItem => (
                             <CommentComponent
-                                name={commentItem.item.name}
-                                date={commentItem.item.date}
+                                name={commentItem.item.commented_by}
+                                date={commentItem.item.commented_at.toDate().toString()}
                                 comment={commentItem.item.comment}
 
                             />

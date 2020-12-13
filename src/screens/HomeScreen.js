@@ -16,33 +16,37 @@ import { Entypo } from "@expo/vector-icons";
 import { AuthContext } from "../providers/AuthProvider";
 import moment from "moment";
 import ScreenHeader from "../components/ScreenHeader";
+import * as firebase from "firebase";
+import "firebase/firestore";
 
 
 const HomeScreen = (props) => {
-  const [post, setpost] = useState("");
-  const [postList, setPostList] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [input, setInput] = useState("");
 
-  const getData = async () => {
-    await getDataJSON("key").then((data) => {
-      if (data == null) {
-        setPostList([]);
-      } else setPostList(data);
-    });
-  };
+  const loadPosts = async () => {
+    firebase
+      .firestore()
+      .collection("posts")
+      .orderBy("created_at", "desc")
+      .onSnapshot((querySnapshot) => {
+        let temp_posts = [];
+        querySnapshot.forEach((doc) => {
+          temp_posts.push({
+            id: doc.id,
+            data: doc.data(),
+          });
+        });
+        setPosts(temp_posts);
+      })
+      .catch((error) => {
 
-  /*const getData = async () => {
-    setPostList(await getDataJSON('key'));
-  };*/
-
-  const init = async () => {
-    await removeData("key");
+        alert(error);
+      });
   };
 
   useEffect(() => {
-    /*const getData = async () => {
-      setPostList(await getDataJSON('key'));
-    }*/
-    getData();
+    loadPosts();
   }, []);
 
   return (
@@ -54,8 +58,8 @@ const HomeScreen = (props) => {
             <Input
               placeholder="What's On Your Mind?"
               leftIcon={<Entypo name="pencil" size={24} color="#152a38" />}
-              onChangeText={function (currentInput) {
-                setpost(currentInput);
+              onChangeText={function (currentText) {
+                setInput(currentText);
               }}
             />
             <Button buttonStyle={{ borderColor: '#29435c' }}
@@ -63,34 +67,38 @@ const HomeScreen = (props) => {
               titleStyle={{ color: '#29435c' }}
               type="outline"
               onPress={
-                async () => {
-                let arr = [
-                  ...postList,
-                  {
-                    name: auth.CurrentUser.name,
-                    email: auth.CurrentUser.email,
-                    date: moment().utcOffset('+06:00').format("DD MMM, YYYY hh:mm:ss a"),
-                    post: post,
-                    key: post,
-                  },
-                ];
-
-                await storeDataJSON("key", arr).then(() => {
-                  setPostList(arr);
-                  alert("Posted!");
-                });
-              }} />
+                function () {
+                  firebase
+                    .firestore()
+                    .collection("posts")
+                    .add({
+                      userId: auth.CurrentUser.uid,
+                      body: input,
+                      author: auth.CurrentUser.displayName,
+                      created_at: firebase.firestore.Timestamp.now(),
+                      likes: [],
+                      comments: [],
+                    })
+                    .then((doc) => {
+                      alert("Post created Successfully!  PostID: " + doc.ZE.path.segments[1] );
+                    })
+                    .catch((error) => {
+                      alert(error);
+                    });
+                }} />
 
           </Card>
           <FlatList
-              data={postList}
-              renderItem={function ({ item }) {
+              data={posts}
+              renderItem={({ item }) =>  {
                 return (
                   <PostCard
-                    author={item.name}
-                    time={item.date}
-                    body={item.post}
-                    nav = {props}
+                    author={item.data.author}
+                    time={item.data.created_at.toDate().toString()}
+                    body={item.data.body}
+                    authorID={item.data.userId}
+                    postID={item.id}
+                    userID={auth.CurrentUser.uid}
                   />
                 );
               }}

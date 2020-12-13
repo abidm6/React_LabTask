@@ -9,6 +9,7 @@ import ProfileScreen from "./src/screens/ProfileScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
 import SignInScreen from "./src/screens/SignInScreen";
 import PostScreen from "./src/screens/PostScreen";
+import * as firebase from 'firebase';
 
 import { AuthContext, AuthProvider } from "./src/providers/AuthProvider";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
@@ -16,6 +17,21 @@ const AuthStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 const HomeTab = createMaterialBottomTabNavigator();
 const AppDrawer = createDrawerNavigator();
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDVwTSnkasPWNQvI08x9rtK9haD3uwxQ1M",
+  authDomain: "blog-86153.firebaseapp.com",
+  projectId: "blog-86153",
+  storageBucket: "blog-86153.appspot.com",
+  messagingSenderId: "348231918981",
+  appId: "1:348231918981:web:6c7d1540047002d722d0ec"
+};
+
+if(!firebase.apps.length)
+{
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+}
 
 const AppDrawerScreen = () => {
   return (
